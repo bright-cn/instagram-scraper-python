@@ -1,45 +1,29 @@
-[![Scrape Instagram data with the Instagram Scraper API: profiles, posts, reels, search. Collect or discover by URL and username. Start free.](.github/banner.png)](https://brightdata.com/products/web-scraper/instagram?utm_source=github)
+[![使用 Instagram 爬虫 API 抓取 Instagram 数据：个人资料、帖子、Reels 短视频和搜索结果。可按 URL 或用户名采集或发现数据。免费开始使用。](.github/banner.png)](https://www.bright.cn/products/web-scraper/instagram?utm_source=github)
 
 # instagram-scraper-python
 
-[![Live check](https://github.com/brightdata/instagram-scraper-python/actions/workflows/live.yml/badge.svg)](https://github.com/brightdata/instagram-scraper-python/actions/workflows/live.yml)
-[![last verified](https://img.shields.io/badge/last%20verified-7%20Oct%202026-brightgreen)](https://github.com/brightdata/instagram-scraper-python/actions/workflows/live.yml) <!-- verified: rewritten by the daily run -->
+[快速开始](#快速开始) · [命令行使用](#作为命令运行) · [API 接口](#其他-api-接口) · [数据](#数据) · [错误处理](#出错时) · [编程智能体](#编程智能体) · [文档](https://docs.brightdata.com/products/scrapers/instagram/introduction) · [支持](#支持)
 
-[Quickstart](#quickstart) · [Command](#or-run-it-as-a-command) · [Endpoints](#the-rest-of-the-api) · [Data](#the-data) · [Errors](#when-it-fails) · [Coding agents](#coding-agents) · [Docs](https://docs.brightdata.com/products/scrapers/instagram/introduction) · [Support](#support)
+使用 Python 将 Instagram 个人资料、帖子、Reels 短视频和评论获取为 JSON。无需登录 Instagram，也无需浏览器。基于 [Bright Data Instagram 爬虫 API](https://www.bright.cn/products/web-scraper/instagram?utm_source=github) 构建。
 
-Instagram profiles, posts, reels and comments as JSON, in Python. No Instagram
-login, no browser. Built on the
-[Bright Data Instagram Scraper API](https://brightdata.com/products/web-scraper/instagram?utm_source=github).
+本项目使用 [Bright Data Python SDK](https://github.com/bright-cn/sdk-python)。完整 API 文档：[Instagram 爬虫 API](https://docs.brightdata.com/products/scrapers/instagram/introduction)。
 
-Uses the [Bright Data Python SDK](https://github.com/brightdata/sdk-python).
-Full API docs:
-[Instagram Scraper API](https://docs.brightdata.com/products/scrapers/instagram/introduction).
+本仓库还提供用于获取帖子的单命令 CLI，以及完全无需编写 Python 的 [Bright Data CLI](#编程智能体)。
 
-Also here: a one-command CLI for posts, and the
-[Bright Data CLI](#coding-agents), which needs no Python at all.
+## 快速开始
 
-## Quickstart
-
-Python 3.10 or newer.
+需要 Python 3.10 或更新版本。
 
 ```bash
 pip install brightdata-sdk
 export BRIGHTDATA_API_TOKEN=YOUR_API_KEY
 ```
 
-Get a token from the
-[Bright Data control panel](https://brightdata.com/cp/setting/users). A `.env`
-file in the project root works too, as long as the virtualenv is inside the
-project.
+从 [Bright Data 控制面板](https://www.bright.cn/cp/setting/users)获取令牌。如果虚拟环境位于项目内，也可以将 `.env` 文件放在项目根目录。
 
-Or skip the token. Run `npx -p @brightdata/cli bdata login` once: it opens a
-browser, and from then on the SDK finds the stored credentials on its own, for
-you and for any coding agent working in that terminal. Agents cannot click
-through the login, so do it yourself first. The same CLI scrapes Instagram
-directly; see [Coding agents](#coding-agents).
+也可以不手动设置令牌。先运行一次 `npx -p @brightdata/cli bdata login`：它会打开浏览器。此后，SDK 会自行找到已保存的凭据，供你以及在该终端工作的任何编程智能体使用。智能体无法自行完成浏览器中的登录操作，因此请先亲自登录。同一个 CLI 也能直接抓取 Instagram 数据；详见[编程智能体](#编程智能体)。
 
-No account yet? [Create one](https://brightdata.com/cp/start); new accounts get
-[5,000 free credits a month](https://docs.brightdata.com/general/account/billing-and-pricing/free-tier).
+还没有账户？[创建账户](https://www.bright.cn/cp/start)；新账户每月可获得 [5,000 免费积分](https://docs.brightdata.com/general/account/billing-and-pricing/free-tier)。
 
 ```python
 from brightdata import SyncBrightDataClient
@@ -50,7 +34,7 @@ with SyncBrightDataClient(auto_create_zones=False) as client:
         print(post["likes"], post["num_comments"], post["url"])
 ```
 
-```
+```text
 2437761 4692 https://www.instagram.com/p/Db9IVmrDvQ4/
 104278 902 https://www.instagram.com/reel/DcMXl1IPNtB/
 553843 4101 https://www.instagram.com/p/DcOX3hWFiey/
@@ -58,25 +42,20 @@ with SyncBrightDataClient(auto_create_zones=False) as client:
 119582 1535 https://www.instagram.com/reel/Dc37MPNSAZq/
 ```
 
-Expect one to three minutes: the API runs a job and the SDK waits for it. One
-[credit](https://brightdata.com/pricing/web-scraper) per post.
+预计需要一至三分钟：API 会运行一个任务，SDK 则会等待任务完成。每条帖子消耗 [1 个积分](https://www.bright.cn/pricing/web-scraper)。
 
-Pass `auto_create_zones=False` every time. Left on, the SDK creates zones on
-startup for Web Unlocker and SERP, two other Bright Data products this scraper
-never touches, and zone creation fails on accounts without a payment method
-([sdk-python#57](https://github.com/brightdata/sdk-python/issues/57)).
+每次都要传入 `auto_create_zones=False`。如果保留默认设置，SDK 会在启动时为网络解锁器和搜索引擎 API 创建区域；这两款 Bright Data 产品与此爬虫工具无关，而且未添加付款方式的账户无法创建区域（[sdk-python#57](https://github.com/bright-cn/sdk-python/issues/57)）。
 
-## Or run it as a command
+## 作为命令运行
 
-The command in this repo does the same for several accounts and writes one
-JSON file.
+此仓库中的命令可以处理多个账户，并将结果写入一个 JSON 文件。
 
 ```bash
-pip install git+https://github.com/brightdata/instagram-scraper-python
+pip install git+https://github.com/bright-cn/instagram-scraper-python
 instagram-scraper nasa natgeo
 ```
 
-```
+```text
 Fetching up to 5 recent posts per account, for: nasa, natgeo
 Usually one to three minutes each. One credit per post, 5,000 free per month.
 asking  @nasa...
@@ -87,23 +66,20 @@ got     @natgeo: 5 posts
 Saved 10 posts as JSON to instagram.json (34 fields per post)
 ```
 
-In a terminal the `asking` lines are replaced by this, updating in place, so
-you can see it is working and how long it has been going:
+在终端中，`asking` 行会被下面的进度显示替换，并原地更新，让你知道任务仍在运行以及已经运行了多久：
 
-```
+```text
 ⠹ @nasa 0:01:47
 ```
 
-```
+```text
 --limit N    posts per account, default 5, minimum 1
 --out PATH   output file, default instagram.json
 ```
 
-`python -m instagram_scraper` works too.
+也可以运行 `python -m instagram_scraper`。
 
-Import it instead of running it, for `ok`, `note` and `error` per account
-instead of raw rows. `scrape` never raises for one bad account; check `ok`
-before reading `posts`:
+还可以导入它，而不是将它作为命令运行。这样，每个账户都会得到 `ok`、`note` 和 `error` 状态，而不只是原始数据行。单个账户出错不会使 `scrape` 抛出异常；读取 `posts` 前请先检查 `ok`：
 
 ```python
 from instagram_scraper import scrape
@@ -115,48 +91,37 @@ for outcome in scrape(["nasa", "zz_not_a_real_account_zz"], limit=1):
         print(f"{outcome.handle} failed: {outcome.error}")
 ```
 
-```
+```text
 nasa: 1 posts
 zz_not_a_real_account_zz failed: Crawler error: Cannot read properties of null (reading 'pk')
 ```
 
-An account with nothing recent is a success with no posts. The reason lands in
-`note`, not `error`.
+如果账户近期没有帖子，调用仍算成功，只是返回零条帖子。原因会写入 `note`，而不是 `error`。
 
-## The rest of the API
+## 其他 API 接口
 
-The command covers one endpoint. The SDK has eight, documented in the
-[Instagram Scraper API docs](https://docs.brightdata.com/products/scrapers/instagram/introduction).
-Every snippet below is complete
-and needs only `brightdata-sdk`: paste it as is. Every one of them runs in Actions each Monday, a smaller check
-runs every other day, and the badge at the top is the latest result.
+上述命令使用其中一个接口。SDK 共提供八个接口，详见 [Instagram 爬虫 API 文档](https://docs.brightdata.com/products/scrapers/instagram/introduction)。下面的每段代码都是完整示例，只需要 `brightdata-sdk`，可直接粘贴运行。所有示例每周一都会在 Actions 中运行，其他日子还会执行规模较小的检查。页面顶部的徽章显示最近一次结果。
 
-| you have | want | call |
+| 已有信息 | 想获取 | 调用方式 |
 | --- | --- | --- |
-| a profile URL | recent posts | `client.search.instagram.posts(url, num_of_posts=5)` |
-| a username | the profile | `client.search.instagram.profiles("nasa")` |
-| a profile URL | the profile | `client.scrape.instagram.profiles(url)` |
-| a profile URL | recent reels | `client.search.instagram.reels(url, num_of_posts=5, timeout=420)` |
-| a profile URL | every reel ever | `client.search.instagram.reels_all(url)`, one credit per reel the account has posted |
-| post URLs | those posts | `client.scrape.instagram.posts([url, url])` |
-| reel URLs | those reels | `client.scrape.instagram.reels([url])` |
-| a post or reel URL | its comments | `client.scrape.instagram.comments(url)`, one credit per comment |
+| 个人资料 URL | 近期帖子 | `client.search.instagram.posts(url, num_of_posts=5)` |
+| 用户名 | 对应个人资料 | `client.search.instagram.profiles("nasa")` |
+| 个人资料 URL | 对应个人资料 | `client.scrape.instagram.profiles(url)` |
+| 个人资料 URL | 近期 Reels 短视频 | `client.search.instagram.reels(url, num_of_posts=5, timeout=420)` |
+| 个人资料 URL | 该账户发布过的所有 Reels 短视频 | `client.search.instagram.reels_all(url)`；每条 Reels 短视频消耗 1 个积分 |
+| 帖子 URL | 对应帖子 | `client.scrape.instagram.posts([url, url])` |
+| Reels 短视频 URL | 对应 Reels 短视频 | `client.scrape.instagram.reels([url])` |
+| 帖子或 Reels 短视频 URL | 对应评论 | `client.scrape.instagram.comments(url)`；每条评论消耗 1 个积分 |
 
-Every one of these is an asynchronous job. The SDK triggers it, polls, and
-returns when it is ready. That is why a call takes one to three minutes, and
-why there is no faster path in Python. The API's
-[synchronous endpoint](https://docs.brightdata.com/api-reference/scrapers/synchronous-requests),
-20 URLs and a one-minute limit, is raw HTTP only.
+这些调用都会创建异步任务：SDK 触发任务、轮询状态，并在任务就绪后返回。这就是一次调用需要一至三分钟，以及 Python 中没有更快调用方式的原因。API 的[同步接口](https://docs.brightdata.com/api-reference/scrapers/synchronous-requests)仅供直接通过 HTTP 调用，最多接受 20 个 URL，且有一分钟的时间限制。
 
-Error rows, like the empty-window one above, appear because the SDK asks for
-them with `include_errors=true`. The API default is off.
+上文所示的错误行之所以会出现，是因为 SDK 使用 `include_errors=true` 请求返回错误。API 默认不会返回这些错误行。
 
-`search` calls return a list in `result.data`. `scrape` calls with one URL
-return one record as a dict, and several as a list.
+`search` 调用在 `result.data` 中返回列表。`scrape` 调用在传入单个 URL 时返回一条字典形式的记录，传入多个 URL 时返回列表。
 
-### Two accounts, one job
+### 两个账户，一个任务
 
-A list of URLs is one job, not one per account.
+一个 URL 列表只会创建一个任务，不会为每个账户各建一个任务。
 
 ```python
 from brightdata import SyncBrightDataClient
@@ -169,16 +134,14 @@ with SyncBrightDataClient(auto_create_zones=False) as client:
         print(post["user_posted"], post["url"])
 ```
 
-```
+```text
 nasa https://www.instagram.com/p/DcOX3hWFiey/
 natgeo https://www.instagram.com/reel/Dbru79IAdH-/
 ```
 
-### Trigger now, fetch later
+### 现在触发，稍后获取
 
-For anything bigger than a few accounts, do not block a process for an hour.
-Trigger, keep the snapshot id, fetch when ready. Snapshots stay downloadable
-for 30 days.
+如果要处理的不止几个账户，不要让进程阻塞一小时。先触发任务并保存快照 ID，待任务就绪后再获取结果。快照可在 30 天内下载。
 
 ```python
 import time
@@ -195,13 +158,13 @@ with SyncBrightDataClient(auto_create_zones=False) as client:
     print("fetched:", record["url"], "likes:", record["likes"])
 ```
 
-```
+```text
 snapshot: sd_mtrapflrzynbfyid9
 status: ready
 fetched: https://www.instagram.com/p/Dc1W1uFj-CW/ likes: 184
 ```
 
-### A date window
+### 指定日期范围
 
 ```python
 from brightdata import SyncBrightDataClient
@@ -217,18 +180,15 @@ with SyncBrightDataClient(auto_create_zones=False) as client:
         print(post["date_posted"], post["content_type"], post["url"])
 ```
 
-```
+```text
 2026-08-12T21:28:58.000Z Image https://www.instagram.com/p/Db9IVmrDvQ4/
 2026-08-18T19:37:40.000Z Reel https://www.instagram.com/reel/DcMXl1IPNtB/
 2026-08-19T14:11:47.000Z Image https://www.instagram.com/p/DcOX3hWFiey/
 ```
 
-`post_type="Post"` keeps posts only and `post_type="Reels"` keeps reels only,
-both verified. The SDK's docstring says `"Reel"`; that spelling returns an
-error row and no reels ([sdk-python#59](https://github.com/brightdata/sdk-python/issues/59)).
-`posts_to_not_include` takes a list of post IDs.
+`post_type="Post"` 只保留普通帖子，`post_type="Reels"` 只保留 Reels 短视频；两者均已验证。SDK 的文档字符串写的是 `"Reel"`，但使用这个拼法会返回错误行，而不会返回 Reels 短视频（[sdk-python#59](https://github.com/bright-cn/sdk-python/issues/59)）。`posts_to_not_include` 接受帖子 ID 列表。
 
-### A profile, by username, no URL
+### 通过用户名获取个人资料，无需 URL
 
 ```python
 from brightdata import SyncBrightDataClient
@@ -238,13 +198,13 @@ with SyncBrightDataClient(auto_create_zones=False) as client:
     print(profile["account"], "followers:", profile["followers"], "posts:", profile["posts_count"])
 ```
 
-```
+```text
 nasa followers: 104387874 posts: 4913
 ```
 
-### Comments on a post
+### 获取帖子的评论
 
-One credit per comment, so check `num_comments` on the post first.
+每条评论消耗 1 个积分，因此请先查看帖子的 `num_comments`。
 
 ```python
 from brightdata import SyncBrightDataClient
@@ -254,13 +214,13 @@ with SyncBrightDataClient(auto_create_zones=False) as client:
     print(len(comments), "comments; first:", repr(comments[0]["comment"][:60]))
 ```
 
-```
+```text
 6 comments; first: 'Those two destroyed jazz'
 ```
 
-### Recent reels
+### 获取近期 Reels 短视频
 
-Reels discovery is slower. The default 180-second timeout expired; 420 did not.
+发现 Reels 短视频所需时间更长。默认的 180 秒超时未能等到结果；设为 420 秒则成功返回。
 
 ```python
 from brightdata import SyncBrightDataClient
@@ -271,85 +231,81 @@ with SyncBrightDataClient(auto_create_zones=False) as client:
         print(reel["date_posted"], reel["url"])
 ```
 
-```
+```text
 2026-08-18T19:37:40.000Z https://www.instagram.com/p/DcMXl1IPNtB/
 2026-09-05T01:00:10.000Z https://www.instagram.com/p/Dc4u1yKPj_s/
 ```
 
-## The data
+## 数据
 
-The fields most people want:
+大多数人关心的字段：
 
-```
+```text
 url  date_posted  description  hashtags  likes  num_comments  user_posted
 ```
 
-The code hardcodes no field list. Whatever the API returns lands in
-`result.data`, and in the command's file.
-A collaborative post carries the co-author's handle in `user_posted`, so a post
-fetched from nasa can say `nasajohnson`; `coauthor_producers` lists everyone.
+代码没有硬编码字段列表。API 返回的所有字段都会进入 `result.data`，也会写入命令生成的文件。
+
+如果帖子由多个账户合作发布，`user_posted` 中可能是合作作者的用户名。因此，从 `nasa` 获取的帖子也可能显示 `nasajohnson`；`coauthor_producers` 会列出所有合作作者。
 
 <!-- fields:start -->
 <details>
-<summary>All 44 fields, with type and description</summary>
+<summary>全部 44 个字段及其类型和说明</summary>
 
-Regenerated every day from the dataset schema, via
-`client.datasets.instagram_posts.get_metadata()`, so it cannot go stale. A
-post carries the fields that apply to it; the sample file has 34
-of these 44.
+以下内容每天都会通过 `client.datasets.instagram_posts.get_metadata()` 从数据集的数据结构重新生成，因此不会过时。每条帖子只包含适用于它的字段；示例文件包含这 44 个字段中的 34 个。
 
-| field | type | description |
+| 字段 | 类型 | 说明 |
 | --- | --- | --- |
-| `url` | url | The direct URL of the Instagram post |
-| `user_posted` | text | Username of the post creator |
-| `description` | text | Post text description |
-| `hashtags` | array | Hashtags used in the post |
-| `num_comments` | number | Number of comments |
-| `date_posted` | date | Post publication date |
-| `likes` | number | Number of likes on the post |
-| `photos` | array | URLs of attached photos, URLs can be expired due to Instagram policy |
-| `videos` | array | URLs of attached videos, URLs can be expired due to Instagram policy |
-| `location` | array | Geographical location associated with the post |
-| `location_details` | object | Detailed geographical location metadata as returned by Instagram |
-| `latest_comments` | array | Recent comments on the post |
-| `post_id` | text | Unique post identifier |
-| `discovery_input` | object | Discovery input values used to trigger the collection |
-| `has_handshake` | boolean | Indicates if the post has a handshake (collaborative agreement between accounts) |
-| `display_url` | text | Deprecated: previously used as the display URL of the post media |
-| `shortcode` | text | The shortcode of the Instagram post, used in the post URL path |
-| `content_type` | text | The type of content: Posts or Reels |
-| `pk` | text | The primary key of the media content as assigned by Instagram |
-| `content_id` | text | The content ID of the media item |
-| `engagement_score_view` | number | Video view count used as an engagement score metric |
-| `thumbnail` | text | The URL of the post's display image or video thumbnail |
-| `video_view_count` | text | The number of views on the video post |
-| `product_type` | text | The type of product associated with the post, such as 'clips' for Reels |
-| `coauthor_producers` | array | List of co-authors or producers who collaborated on the post |
-| `tagged_users` | array | List of users tagged in the post |
-| `video_play_count` | number | The number of times the video has been played |
-| `followers` | number | Number of followers the post owner has at the time of collection |
-| `posts_count` | number | The total count of posts made by the account at the time of collection |
-| `profile_image_link` | text | URL linking directly to the Instagram profile image of the post owner |
-| `is_verified` | boolean | Indicates whether the post owner's account is verified |
-| `is_paid_partnership` | boolean | Indicates whether the post is a sponsored or paid partnership |
-| `partnership_details` | object | Details of the paid partnership brand associated with the post |
-| `user_posted_id` | text | The Instagram user ID of the account that posted the post |
-| `post_content` | array | List of media items (photos or videos) attached to the post, including carousel items |
-| `audio` | object | Audio track metadata associated with the post or Reel |
-| `profile_url` | url | URL of the Instagram profile that posted the post |
-| `videos_duration` | array | List of video durations for each video attached to the post |
-| `images` | array | List of image objects attached to the post |
-| `alt_text` | text | Accessibility alt text for the post's main image: descriptive text that conveys the meaning of the image for blind or visually impaired users |
-| `photos_number` | number | Total number of photos attached to the post |
-| `audio_url` | url | Direct URL of the audio track used in the post |
-| `thumbnail_array` | array | Deprecated: array of thumbnail URLs for the post media |
-| `country` | text | Some profiles are restricted by location. Please set the country code in Alpha-2 format |
+| `url` | URL | Instagram 帖子的直接 URL |
+| `user_posted` | 文本 | 帖子发布者的用户名 |
+| `description` | 文本 | 帖子的文字说明 |
+| `hashtags` | 数组 | 帖子使用的话题标签 |
+| `num_comments` | 数字 | 评论数量 |
+| `date_posted` | 日期 | 帖子发布日期 |
+| `likes` | 数字 | 帖子获赞数量 |
+| `photos` | 数组 | 所附图片的 URL；根据 Instagram 政策，这些 URL 可能过期 |
+| `videos` | 数组 | 所附视频的 URL；根据 Instagram 政策，这些 URL 可能过期 |
+| `location` | 数组 | 与帖子关联的地理位置 |
+| `location_details` | 对象 | Instagram 返回的详细地理位置元数据 |
+| `latest_comments` | 数组 | 帖子的近期评论 |
+| `post_id` | 文本 | 帖子的唯一标识符 |
+| `discovery_input` | 对象 | 用于触发数据采集的发现类输入值 |
+| `has_handshake` | 布尔值 | 帖子是否带有账户之间的合作发布标识 |
+| `display_url` | 文本 | 已弃用：此前用于表示帖子媒体的展示 URL |
+| `shortcode` | 文本 | Instagram 帖子的短代码，用于帖子 URL 路径 |
+| `content_type` | 文本 | 内容类型：普通帖子或 Reels 短视频 |
+| `pk` | 文本 | Instagram 为媒体内容分配的主键 |
+| `content_id` | 文本 | 媒体项目的内容 ID |
+| `engagement_score_view` | 数字 | 用作互动评分指标的视频观看次数 |
+| `thumbnail` | 文本 | 帖子展示图片或视频缩略图的 URL |
+| `video_view_count` | 文本 | 视频帖子的观看次数 |
+| `product_type` | 文本 | 与帖子关联的产品类型，例如 Reels 短视频对应的 `clips` |
+| `coauthor_producers` | 数组 | 参与合作发布帖子的作者或制作人列表 |
+| `tagged_users` | 数组 | 帖子中标记的用户列表 |
+| `video_play_count` | 数字 | 视频播放次数 |
+| `followers` | 数字 | 数据采集时，帖子发布者的粉丝数量 |
+| `posts_count` | 数字 | 数据采集时，该账户发布的帖子总数 |
+| `profile_image_link` | 文本 | 直达帖子发布者 Instagram 头像的 URL |
+| `is_verified` | 布尔值 | 帖子发布者的账户是否已获得认证 |
+| `is_paid_partnership` | 布尔值 | 帖子是否属于赞助内容或付费合作 |
+| `partnership_details` | 对象 | 与帖子关联的付费合作品牌详情 |
+| `user_posted_id` | 文本 | 帖子发布账户的 Instagram 用户 ID |
+| `post_content` | 数组 | 帖子所附媒体项目（图片或视频）的列表，包括轮播内容 |
+| `audio` | 对象 | 与帖子或 Reels 短视频关联的音轨元数据 |
+| `profile_url` | URL | 帖子发布者的 Instagram 个人资料 URL |
+| `videos_duration` | 数组 | 帖子所附各个视频的时长列表 |
+| `images` | 数组 | 帖子所附图片对象的列表 |
+| `alt_text` | 文本 | 帖子主图的无障碍替代文本：用于向盲人或视障用户描述图片含义 |
+| `photos_number` | 数字 | 帖子所附图片总数 |
+| `audio_url` | URL | 帖子所用音轨的直接 URL |
+| `thumbnail_array` | 数组 | 已弃用：帖子媒体缩略图 URL 的数组 |
+| `country` | 文本 | 某些个人资料受到地区限制。请使用 Alpha-2 格式设置国家或地区代码 |
 
 </details>
 <!-- fields:end -->
 
 <details>
-<summary>The start of a real output file, from <code>instagram-scraper nasa --limit 1</code></summary>
+<summary>真实输出文件的开头，来自 <code>instagram-scraper nasa --limit 1</code></summary>
 
 ```json
 {
@@ -375,111 +331,94 @@ of these 44.
   ...
 ```
 
-The whole file, one post with every field, is
-[examples/sample_output.json](examples/sample_output.json).
+包含一条帖子及其全部字段的完整文件见 [examples/sample_output.json](examples/sample_output.json)。
 
 </details>
 
-## When it fails
+## 出错时
 
-| you see | what it means |
+| 看到的信息 | 含义 |
 | --- | --- |
-| `API token required but not found.` | Exit 2, before any request. Set the token. |
-| `failed  @name: ...` | Exit 1. No such account, usually a typo. The wording varies: "Sorry, this page isn't available." and "Crawler error: Cannot read properties of null" are both this. |
-| `got     @name: 0 posts, the account has no public posts in the period searched` | Exit 0, and correct. The API reports an empty window as an error row. |
-| `failed  @name: timeout` | Exit 1. A request gives up after 180 seconds. Run it again. |
+| `API token required but not found.` | 在发送任何请求之前以状态码 2 退出。请设置令牌。 |
+| `failed  @name: ...` | 以状态码 1 退出。账户不存在，通常是名称输入有误。提示可能有所不同：`Sorry, this page isn't available.` 和 `Crawler error: Cannot read properties of null` 都可能表示这种情况。 |
+| `got     @name: 0 posts, the account has no public posts in the period searched` | 以状态码 0 退出，属于正确结果。API 将指定时间范围内没有帖子报告为错误行。 |
+| `failed  @name: timeout` | 以状态码 1 退出。请求在等待 180 秒后放弃。请重新运行。 |
 
-Any failure exits 1, so a run is safe to gate a script on.
+任何失败都会以状态码 1 退出，因此脚本可以安全地依据运行结果决定是否继续。
 
-From the SDK, the same conditions look like this:
+在 SDK 中，相同情况表现如下：
 
-| you see | what it means |
+| 看到的信息 | 含义 |
 | --- | --- |
-| `AuthenticationError: Unauthorized (401)` | The token is set but wrong. |
-| `result.success` is `False`, `result.status` is `"timeout"` | The SDK gave up waiting, 180 seconds by default. Pass `timeout=420`, or run it again. |
-| a row in `result.data` with an `error` key | The API's answer for one input: an empty window, or no such account. The other rows are fine. |
+| `AuthenticationError: Unauthorized (401)` | 已设置令牌，但令牌不正确。 |
+| `result.success` 为 `False`，`result.status` 为 `"timeout"` | SDK 等待超时；默认超时时间为 180 秒。请传入 `timeout=420`，或重新运行。 |
+| `result.data` 中某一行包含 `error` 键 | 这是 API 对某条输入返回的结果，可能表示指定时间范围内没有帖子，或账户不存在；其他行不受影响。 |
 
-## Coding agents
+## 编程智能体
 
-No Python, nothing installed. Paste both lines; the first opens a browser
-once, or use `bdata login --device` over SSH and in CI:
+无需编写 Python，也无需预先安装任何内容。粘贴以下两行即可；第一行会打开一次浏览器。如果通过 SSH 或在 CI 中使用，请改用 `bdata login --device`：
 
 ```bash
 npx -p @brightdata/cli bdata login
 npx -p @brightdata/cli bdata pipelines instagram_posts "https://www.instagram.com/p/Db_SePSltfz/"
 ```
 
-The CLI's four Instagram pipelines each take a post, reel or profile URL and
-return that one record. Recent posts from a profile is the SDK call in the
-Quickstart; the CLI has no route for it.
+CLI 的四种 Instagram 数据管道分别接受帖子、Reels 短视频或个人资料 URL，并返回该 URL 对应的一条记录。若要获取某份个人资料的近期帖子，请使用「快速开始」中的 SDK 调用；CLI 没有对应命令。
 
-`npx skills add brightdata/skills` teaches Claude Code, Cursor and Codex these
-commands and the docs, so plain language works afterwards. Full guide:
-[Bright Data for your coding agent](https://docs.brightdata.com/quickstart-coding-agent).
+运行 `npx skills add brightdata/skills`，可以让 Claude Code、Cursor 和 Codex 学会这些命令并了解相关文档，此后就能用自然语言提出需求。完整指南：[让编程智能体使用 Bright Data](https://docs.brightdata.com/quickstart-coding-agent)。
 
-No terminal, for a hosted assistant? The
-[Bright Data MCP server](https://github.com/brightdata/brightdata-mcp#which-tool-to-use)
-has the same four Instagram tools, one URL each, in its `social` group, which
-is off unless you ask for it:
+使用托管助手、没有终端？[Bright Data MCP 服务器](https://github.com/bright-cn/brightdata-mcp#which-tool-to-use)的 `social` 工具组中也提供这四种 Instagram 工具，每次处理一个 URL。该工具组默认关闭，需要明确启用：
 
-    https://mcp.brightdata.com/mcp?token=YOUR_API_TOKEN&groups=social
+```text
+https://mcp.brightdata.com/mcp?token=YOUR_API_TOKEN&groups=social
+```
 
-An agent can also open the account itself, no signup form:
-[agent registration](https://brightdata.com/auth.md). Everything else Bright
-Data connects to, from LangChain to Zapier and n8n:
-[integrations](https://docs.brightdata.com/integrations/introduction).
+智能体还可以自行创建账户，无需填写注册表单：[智能体注册](https://www.bright.cn/auth.md)。如需了解 Bright Data 与 LangChain、Zapier、n8n 等工具的其他集成方式，请参阅[集成文档](https://docs.brightdata.com/integrations/introduction)。
 
 <details>
-<summary>Every Instagram command the CLI has, each run today</summary>
+<summary>CLI 提供的全部 Instagram 命令，均于今日运行验证</summary>
 
-Four types: `instagram_profiles`, `instagram_posts`, `instagram_reels`,
-`instagram_comments`. Each takes URLs, prints JSON, and costs one credit per
-record. Prefix each command with `npx -p @brightdata/cli`, or install once with
-`npm i -g @brightdata/cli`.
+共四种类型：`instagram_profiles`、`instagram_posts`、`instagram_reels` 和 `instagram_comments`。它们接受 URL、输出 JSON，并按每条记录 1 个积分计费。运行每条命令时都可以加上前缀 `npx -p @brightdata/cli`；也可以通过 `npm i -g @brightdata/cli` 安装一次后直接使用。
 
 ```bash
 bdata pipelines instagram_profiles "https://www.instagram.com/nasa/" --pretty
 ```
 
-1 record, 25 fields, 50 seconds. `"account": "nasa"`, `"followers": 104396028`.
+1 条记录，25 个字段，用时 50 秒。`"account": "nasa"`，`"followers": 104396028`。
 
 ```bash
 bdata pipelines instagram_posts "https://www.instagram.com/p/Dc1W1uFj-CW/" --format csv -o posts.csv
 ```
 
-```
+```text
 Triggered collection with snapshot ID:sd_mtrcu6qpyebqgtcjg
 Output written to posts.csv
 ```
 
-37 seconds. The CSV header carries the same field names as the table below.
+用时 37 秒。CSV 表头使用与下表相同的字段名。
 
 ```bash
 bdata pipelines instagram_reels "https://www.instagram.com/reel/DcMXl1IPNtB/" --pretty
 ```
 
-1 record, 25 fields, 23 seconds.
+1 条记录，25 个字段，用时 23 秒。
 
 ```bash
 bdata pipelines instagram_comments "https://www.instagram.com/p/Dc1W1uFj-CW/" --pretty
 ```
 
-5 records, 11 fields, 9 seconds. One credit per comment, so check the post's
-`num_comments` first.
+5 条记录，11 个字段，用时 9 秒。每条评论消耗 1 个积分，因此请先查看帖子的 `num_comments`。
 
-`bdata pipelines list` prints every type. `bdata pipelines --help` shows
-`--format json|csv|ndjson|jsonl`, `-o FILE` and `--timeout`.
+`bdata pipelines list` 会列出所有类型。`bdata pipelines --help` 会显示 `--format json|csv|ndjson|jsonl`、`-o FILE` 和 `--timeout` 等选项。
 
 </details>
 
-## Support
+## 支持
 
-Bugs in this repo:
-[open an issue](https://github.com/brightdata/instagram-scraper-python/issues), and
-[CONTRIBUTING.md](CONTRIBUTING.md) says what to put in it.
-Anything about the API, your account or your credits:
-[Bright Data support](https://brightdata.zendesk.com/hc/en-us/requests/new).
+发现此仓库中的问题？请[提交 issue](https://github.com/bright-cn/instagram-scraper-python/issues)，并参照 [CONTRIBUTING.md](CONTRIBUTING.md) 说明提供必要信息。
 
-## License
+有关 API、账户或积分的问题，请联系 [Bright Data 支持团队](https://brightdata.zendesk.com/hc/en-us/requests/new)。
 
-MIT.
+## 许可证
+
+MIT。
