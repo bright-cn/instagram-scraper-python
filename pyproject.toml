@@ -1,0 +1,34 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "instagram-scraper"
+version = "0.1.0"
+description = "Instagram scraper in Python: profiles, posts, reels and comments as JSON, on the Bright Data Instagram Scraper API (Web Scraper API). No Instagram login, no browser. 5,000 free credits a month."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+dependencies = ["brightdata-sdk>=2.5.2,<3", "rich>=13,<15"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[project.scripts]
+instagram-scraper = "instagram_scraper.__main__:main"
+
+[project.urls]
+Homepage = "https://github.com/brightdata/instagram-scraper-python"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/instagram_scraper"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
