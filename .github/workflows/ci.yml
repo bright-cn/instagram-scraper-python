@@ -10,15 +10,22 @@ on:
 permissions:
   contents: read
 
+concurrency:  # a newer push to the same branch or PR replaces the run still going
+  group: ci-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   tests:
     name: Run the tests and the code style check
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
       - name: Install the package and its test tools
         run: pip install -e ".[dev]"
       - name: Check code style with ruff
@@ -40,6 +47,7 @@ jobs:
   coldstart:
     name: Follow the README from scratch on an empty machine
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7
@@ -62,9 +70,9 @@ jobs:
           def block(text, lang):
               return re.search(r"```" + lang + r"\n(.*?)```", text, re.S).group(1)
 
-          quick = section("Quickstart")
+          quick = section("How to scrape Instagram data with Python")
           install, snippet = block(quick, "bash"), block(quick, "python")
-          command = block(section("Or run it as a command"), "bash")
+          command = block(section("Bulk Instagram scraper CLI"), "bash")
           for required, where in (("pip install brightdata-sdk", install),
                                   ("SyncBrightDataClient", snippet),
                                   ("instagram-scraper", command)):

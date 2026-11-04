@@ -1,27 +1,25 @@
-# Contributing
+# 贡献
 
-The most useful thing you can send us is a broken example.
+你能为我们提供的最有用内容，是一个无法运行的示例。
 
-## Report a bug
+## 报告错误
 
-[Open an issue](https://github.com/brightdata/instagram-scraper-python/issues) and include:
+[提交 issue](https://github.com/bright-cn/instagram-scraper-python/issues)，并附上：
 
-- the command or the snippet you ran
-- what you expected, and what happened instead
-- your versions: `python --version` and `pip show brightdata-sdk`
+- 你运行的命令或代码片段
+- 你的预期结果，以及实际发生的情况
+- 你的版本：`python --version` 和 `pip show brightdata-sdk`
 
-Paste the error text rather than a screenshot of it. Never paste your API
-token, in an issue or anywhere else.
+请粘贴错误文本，而不是错误截图。切勿在 issue 或其他任何地方粘贴你的 API 令牌。
 
-## Send a pull request
+## 提交拉取请求
 
-Before you push, check that:
+推送前，请检查：
 
-- `pytest` passes offline, with no token set
-- `ruff check .` is clean
-- every fenced block in the README still runs exactly as pasted
+- `pytest` 在未设置令牌的情况下可离线通过
+- `ruff check .` 没有未提交的更改
+- README 中的每个围栏代码块仍能完全按照粘贴内容运行
 
-## Account, credits and the API
+## 账户、积分和 API
 
-We cannot see your account from here, so those go to
-[Bright Data support](https://brightdata.zendesk.com/hc/en-us/requests/new).
+我们无法从这里查看你的账户，因此这些问题请联系 [Bright Data 支持团队](https://brightdata.zendesk.com/hc/en-us/requests/new)。
